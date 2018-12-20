@@ -24,6 +24,7 @@
     <Compile Include="chord_dl.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="task.txt" />
     <Content Include="メモ.txt" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
