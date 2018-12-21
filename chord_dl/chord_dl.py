@@ -1,7 +1,12 @@
 import pygame
+import os
 import pygame.midi
 import pandas
 import msvcrt
+
+
+os.makedirs("data", exist_ok=True)
+os.makedirs("data/data", exist_ok=True)
 
 pygame.init()
 pygame.midi.init()
@@ -29,8 +34,15 @@ def input_chord():
             if kb.decode() == "n":
                 print("\n input chord: ",chord)
                 break
-            if kb.decode() == "r":
+            elif kb.decode() == "r":
                 chord = []
+                print("reset chord")
+            elif kb.decode() == "d":
+                return "d"
+            elif kb.decode() == "0":
+                return "0"
+            elif kb.decode() == "q":
+                return "q"
     #コードを返す
     return chord
 
@@ -40,12 +52,26 @@ def loop():
             ind = int(data.read())
     except FileNotFoundError:
         ind = 0
-        
+    
     chords = []
-    print("Press d to end a section. reset button:r")
+    print("press q to quit.")
+    print("Press d to end a section. reset button:0")
 
     while True:
         cho = input_chord()
+        if cho == "d":
+            print("end section")
+            break
+        elif cho == "0":
+            print("chords are reseted")
+            chords = []
+            continue
+        elif cho == "q":
+            return "q"
+        elif len(cho) == 0:
+            print("input a chord")
+            continue
+
         #そろえる
         min_of_ch = min(cho)
         oct_ch = min_of_ch//12
@@ -59,18 +85,9 @@ def loop():
                 cho_dum[i] = 0
         chords.append(cho_dum)
 
-        if msvcrt.kbhit():
-            kb = msvcrt.getch()
-            if kb.decode() == "d":
-                print("end section")
-                break
-            if kb.decode() == "r":
-                print("chords are reseted")
-                chords = []
-
     ind += 1
     with open("data/index.txt",mode="w") as data:
-        data.write(ind)
+        data.write(str(ind))
 
     #データフレームにする
     df = pandas.DataFrame(chords,
@@ -78,10 +95,11 @@ def loop():
                                    "C1","C#1","D1","D#1","E1","F1","F#1","G1","G#1","A1","A#1","B1"])
     df.to_csv("data/data/"+str(ind)+".csv")
 
-print("press q to quit.")
+    return None
+
+
 while True:
-    loop()
-    if msvcrt.kbhit():
-        kb = msvcrt.getch()
-        if kb.decode() == "q":
-            break
+    ret = loop()
+    if ret == "q":
+        print("quit")
+        break
